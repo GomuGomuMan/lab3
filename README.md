@@ -51,6 +51,7 @@ about each block:
 	* Allocated (yes or no)
 	* Start address
 	* End address
+
 Addresses should be printed in hexadecimal. The blocks should be printed in the
 order in which they are found in the heap.
 Example:
