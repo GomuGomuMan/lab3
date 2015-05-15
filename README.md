@@ -23,24 +23,24 @@ numbers should increment each time a new block is allocated. So the first
 allocated block should be block number 1, the second is block number 2, etc.
 Notice that only the allocated blocks receive block numbers.
 Example:
-```
-> allocate 10
-1
-> allocate 5
-2
->
-```
+	```
+	> allocate 10
+	1
+	> allocate 5
+	2
+	>
+	```
 
 2. free - This function allows the user to free a block of memory. This function
 takes one argument, the block number associated with the previously
 allocated block of memory. This function must call mm_free.
 Example:
-```
-> allocate 10
-1
-> free 1
->
-```
+	```
+	> allocate 10
+	1
+	> free 1
+	>
+	```
 When a block is freed its block number is no longer valid. The block number should
 not be reused to number any newly allocated block in the future.
 
@@ -54,13 +54,13 @@ about each block:
 Addresses should be printed in hexadecimal. The blocks should be printed in the
 order in which they are found in the heap.
 Example:
-```
->blocklist
-Size Allocated Start End
-8 yes 0x00400000 0x00400007
-16 no 0x00400008 0x00400017
-4 yes 0x00400018 0x0040001c
-```
+	```
+	>blocklist
+	Size Allocated Start End
+	8 yes 0x00400000 0x00400007
+	16 no 0x00400008 0x00400017
+	4 yes 0x00400018 0x0040001c
+	```
 
 4. writeheap – This function writes characters into a block in the heap. The
 function takes three arguments: the block number to write to, the character to
@@ -70,9 +70,9 @@ the block, where n is the third argument. This function should not overwrite
 the header of the block which it is writing to, only the payload.
 For example, if we wish to write 24 ‘A’ characters into block 3, the user would type
 the following command:
-```
->writeheap 3 A 24
-```
+	```
+	>writeheap 3 A 24
+	```
 
 5. printheap – This prints out the contents of a portion of the heap. This function
 takes two arguments: the number of the block to be printed, and the number
@@ -82,11 +82,11 @@ is larger than the size of the block, this function should print the bytes anywa
 even though they might extend into a neighboring block.
 For example, if the user wants to print out the first 10 bytes of block 3, the user would
 type the following:
-```
->printheap 3 10
-AAAAAAAAAA
->
-```
+	```
+	>printheap 3 10
+	AAAAAAAAAA
+	>
+	```
 
 6. bestfit – This function tells the allocator to use the bestfit allocation algorithm
 from now on. This function takes no arguments.
