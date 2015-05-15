@@ -47,11 +47,8 @@ not be reused to number any newly allocated block in the future.
 3. blocklist - This command prints out information about all of the blocks in your
 heap. It takes no arguments. Addresses should be printed in hexadecimal. The blocks
 should be printed in the order in which they are found in the heap. The following
-information should be printed about each block:
-	* Size
-	* Allocated (yes or no)
-	* Start address
-	* End address
+information should be printed about each block: Size, Allocated (yes or no), Start
+address, and End address. Example:
 	```
 	>blocklist
 	Size Allocated Start End
