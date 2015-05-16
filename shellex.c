@@ -194,12 +194,12 @@ void printHeap(int blockNum, int numBytes)
 
 void bestFit(void)
 {
-
+	set_best_fit(1);
 }
 
 void firstFit(void)
 {
-
+	set_best_fit(0);
 }
 
 void redirectIO(char* inputFileName, char* outputFileName)
