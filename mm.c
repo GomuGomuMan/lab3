@@ -42,6 +42,8 @@
 /* Given block ptr bp, compute address of next and previous blocks */
 #define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE))) //line:vm:mm:nextblkp
 #define PREV_BLKP(bp)  ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) //line:vm:mm:prevblkp
+
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 /* $end mallocmacros */
 
 /* Global variables */
@@ -58,6 +60,51 @@ static void *coalesce(void *bp);
 static void printblock(void *bp); 
 static void checkheap(int verbose);
 static void checkblock(void *bp);
+
+void print_blocks() {
+	size_t size, alloc;
+	void* current;
+	char* allocStr;
+
+	if(heap_listp == 0) {
+		mm_init();
+	}
+
+	printf("Size Allocated Start End\n");
+	for(current = heap_listp; GET_SIZE(HDRP(current)) > 0; current = NEXT_BLKP(current)) {
+		size = GET_SIZE(HDRP(current));
+		alloc = GET_ALLOC(HDRP(current));
+		if(alloc) {
+			allocStr = "yes";
+		} else {
+			allocStr = "no";
+		}
+		printf("%i %s %p %p\n", size, allocStr, current, current+size);
+	}
+}
+
+void write_block(void* memLoc, char byte, int numCopies) {
+	int c;
+	void* memLimit = FTRP(memLoc);
+	int payloadSize = (memLimit - memLoc);
+
+	numCopies = MIN(numCopies, payloadSize);
+	for (c = 0; c < numCopies; ++c) {
+		PUT(memLoc + (c * 8), byte);
+	}
+}
+
+void print_block(void* memLoc, int numBytes) {
+	int c;
+	void* memLimit = FTRP(memLoc);
+	int payloadSize = (memLimit - memLoc);
+
+	numBytes = MIN(numBytes, payloadSize);
+	for (c = 0; c < numBytes; ++c) {
+		printf("%c", (char)GET(memLoc + (c * 8)));
+	}
+	printf("\n");
+}
 
 /* 
  * mm_init - Initialize the memory manager 
@@ -349,9 +396,9 @@ static void printblock(void *bp)
 	return;
     }
 
-    /*  printf("%p: header: [%p:%c] footer: [%p:%c]\n", bp, 
+      printf("%p: header: [%p:%c] footer: [%p:%c]\n", bp, 
 	hsize, (halloc ? 'a' : 'f'), 
-	fsize, (falloc ? 'a' : 'f')); */
+	fsize, (falloc ? 'a' : 'f'));
 }
 
 static void checkblock(void *bp) 

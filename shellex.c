@@ -14,7 +14,7 @@ void redirectIO(char* inputFileName, char* outputFileName);
 int parseline(char *buf, char **argv);
 int builtin_command(char **argv); 
 
-void allocate(int size);
+void allocate(size_t size);
 void freeBlock(int blockNum);
 void blockList(void);
 void writeHeap(int blockNum, char byte, int numCopies);
@@ -25,7 +25,8 @@ void firstFit(void);
 int blockCounter = 0;
 
 struct BlockNode {
-	int blockNum;
+	int num;
+	size_t size;
 	void* memLoc;	
 	struct BlockNode* next;
 };
@@ -123,50 +124,82 @@ int builtin_command(char **argv)
 }
 /* $end eval */
 
-void allocate(int size)
+void allocate(size_t size)
 {
 	struct BlockNode* node = malloc(sizeof(struct BlockNode));
 	node->memLoc = mm_malloc(size);
-	node->blockNum = ++blockCounter;
+	node->num = ++blockCounter;
+	node->size = size;
 
 	if (headNode == NULL){
 		headNode = node;
 	} else {
 		node->next = headNode;
 		headNode = node;
-	}		
+	}
 
-	printf("Size: %i, Loc: %p\n", size, node->memLoc);	
+	printf("%i\n", node->num);
 }
 
 void freeBlock(int blockNum)
 {
-	
+	struct BlockNode *cursor, *prevCursor;
+	prevCursor = NULL;
+
+	if (headNode == NULL) {
+		return;
+	} else {
+		for(cursor = headNode; cursor != NULL;
+				prevCursor = cursor, cursor = cursor->next){
+			if(cursor->num == blockNum){
+				if(prevCursor == NULL){
+					headNode = cursor->next;
+				} else {
+					prevCursor->next = cursor->next;
+				}
+				mm_free(cursor->memLoc);
+				free(cursor);
+				return;
+			}
+		}
+	}
 }
 
 void blockList(void)
 {
-	
+	print_blocks();
 }
 
 void writeHeap(int blockNum, char byte, int numCopies)
 {
-	
+	struct BlockNode* cursor;
+	for (cursor = headNode; cursor != NULL; cursor = cursor->next) {
+		if (cursor->num == blockNum){
+			write_block(cursor->memLoc, byte, numCopies);
+			break;
+		}
+	}/*luis was here*/
 }
 
 void printHeap(int blockNum, int numBytes)
 {
-	
+	struct BlockNode* cursor;
+	for (cursor = headNode; cursor != NULL; cursor = cursor->next) {
+		if (cursor->num == blockNum){
+			print_block(cursor->memLoc, numBytes);
+			break;
+		}
+	}
 }
 
 void bestFit(void)
 {
-	
+
 }
 
 void firstFit(void)
 {
-	
+
 }
 
 void redirectIO(char* inputFileName, char* outputFileName)
