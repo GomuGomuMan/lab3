@@ -1,5 +1,7 @@
 Assignment source: https://eee.uci.edu/15s/36670/labs/lab3_malloc.pdf
 
+Compile: `gcc -pthread shellex.c csapp.c memlib.c mm.c -o memshell.exe`
+
 ICS 53, Spring 2015
 Lab 3: A Memory Allocator
 The book provides you with a memory allocator which exports 3 functions, mm_init,
