@@ -13,11 +13,12 @@
 
 /* $begin mallocmacros */
 /* Basic constants and macros */
-#define WSIZE       4       /* Word and header/footer size (bytes) */ //line:vm:mm:beginconst
+#define WSIZE       4       /* Word size and header/footer size (bytes) */ //line:vm:mm:beginconst
 #define DSIZE       8       /* Doubleword size (bytes) */
 #define CHUNKSIZE  (1<<12)  /* Extend heap by this amount (bytes) */  //line:vm:mm:endconst 
 
 #define MAX(x, y) ((x) > (y)? (x) : (y))  
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 /* Pack a size and allocated bit into a word */
 #define PACK(size, alloc)  ((size) | (alloc)) //line:vm:mm:pack
@@ -27,7 +28,7 @@
 #define PUT(p, val)  (*(unsigned int *)(p) = (val))    //line:vm:mm:put
 
 /* Read the size and allocated fields from address p */
-#define GET_SIZE(p)  (GET(p) & ~0x7)                   //line:vm:mm:getsize
+#define GET_SIZE(p)  (GET(p) & ~0x3)                   //line:vm:mm:getsize
 #define GET_ALLOC(p) (GET(p) & 0x1)                    //line:vm:mm:getalloc
 
 /* Given block ptr bp, compute address of its header and footer */
@@ -38,7 +39,6 @@
 #define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE))) //line:vm:mm:nextblkp
 #define PREV_BLKP(bp)  ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) //line:vm:mm:prevblkp
 
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 /* $end mallocmacros */
 
 /* Global variables */
@@ -148,10 +148,10 @@ void *mm_malloc(size_t size)
 		return NULL;
 
 	/* Adjust block size to include overhead and alignment reqs. */
-	if (size <= DSIZE)                                          //line:vm:mm:sizeadjust1
-		asize = 2*DSIZE;                                        //line:vm:mm:sizeadjust2
+	if (size <= WSIZE)                                          //line:vm:mm:sizeadjust1
+		asize = WSIZE + DSIZE;                                //line:vm:mm:sizeadjust2
 	else
-		asize = DSIZE * ((size + (DSIZE) + (DSIZE-1)) / DSIZE); //line:vm:mm:sizeadjust3
+		asize = WSIZE * ((size + (WSIZE-1)) / WSIZE) + DSIZE; //line:vm:mm:sizeadjust3
 
 	/* Search the free list for a fit */
 	if ((bp = find_fit(asize)) != NULL) {  //line:vm:mm:findfitcall
@@ -290,7 +290,8 @@ static void *extend_heap(size_t words)
 	size_t size;
 
 	/* Allocate an even number of words to maintain alignment */
-	size = (words % 2) ? (words+1) * WSIZE : words * WSIZE; //line:vm:mm:beginextend
+	/* size = (words % 2) ? (words+1) * WSIZE : words * WSIZE; */ //line:vm:mm:beginextend
+	size = words * WSIZE;
 	if ((long)(bp = mem_sbrk(size)) == -1)  
 		return NULL;                                        //line:vm:mm:endextend
 
@@ -315,7 +316,7 @@ static void place(void *bp, size_t asize)
 {
 	size_t csize = GET_SIZE(HDRP(bp));   
 
-	if ((csize - asize) >= (2*DSIZE)) { 
+	if ((csize - asize) >= (3*WSIZE)) { 
 		PUT(HDRP(bp), PACK(asize, 1));
 		PUT(FTRP(bp), PACK(asize, 1));
 		bp = NEXT_BLKP(bp);
@@ -338,7 +339,6 @@ static void *find_fit(size_t asize)
 	/* $end mmfirstfit-proto */
 {
 	/* $end mmfirstfit */
-	printf("bestFit, asize: %i %i\n", bestFit, asize);
 	if(bestFit) {
 		/* $begin mmbestfit */
 		/* Best fit search */
